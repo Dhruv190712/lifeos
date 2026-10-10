@@ -4,7 +4,7 @@ A calm, single-page personal tracker I vibe coded to keep my college life, famil
 
 I built it to organise my academics and other commitments at college, and to get **one unified view of everything I have in a day across college, family and friends**, so I can be aware of what's coming and plan my day accordingly.
 
-**Live demo:** https://.github.io/lifeos/
+**Live demo:** https://Dhruv190712.github.io/lifeos/
 
 ## Features
 
@@ -38,7 +38,3 @@ It's a single file with no build step. Open `index.html` in any modern browser, 
 ## Tech
 
 Plain HTML, CSS and JavaScript in one file. No frameworks and no dependencies.
-
-## License
-
-MIT, see `LICENSE`.
