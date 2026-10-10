@@ -1,0 +1,4 @@
+# Exported backups contain personal data, never commit them
+lifeos-backup-*.json
+.DS_Store
+Thumbs.db

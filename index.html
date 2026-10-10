@@ -1,0 +1,117 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>LifeOS</title>
+<style>
+:root{--bg:#f6f5f2;--c:#fff;--t:#2b2f33;--m:#7a8087;--b:#e4e2dc;--a:#5b6fd6;--task:#3b82c4;--event:#9b6ad6;--deadline:#e0674f;--reminder:#2fae9a;--bad:#c0504f;--ar-College:#5b7fd6;--ar-Family:#e08a4f;--ar-Friends:#e0627f}
+@media(prefers-color-scheme:dark){:root{--bg:#1c1e20;--c:#26292c;--t:#e6e6e3;--m:#93999f;--b:#383c40}}
+*{box-sizing:border-box}body{margin:0;font:15px system-ui,sans-serif;background:var(--bg);color:var(--t);display:flex;min-height:100vh}
+nav{width:190px;padding:14px;background:var(--c);border-right:1px solid var(--b);position:sticky;top:0;height:100vh;overflow:auto;flex:none}
+nav a{display:block;padding:7px 10px;border-radius:8px;cursor:pointer;color:var(--m)}nav a.on,nav a:hover{background:var(--bg);color:var(--t)}
+nav h4{margin:14px 10px 4px;font-size:11px;text-transform:uppercase;color:var(--m);letter-spacing:.06em}.logo{font-weight:700;font-size:18px;padding:7px 10px;display:block}.hint{font-size:11px;color:var(--m);padding:12px 10px}
+main{flex:1;padding:20px;max-width:960px;min-width:0}.top{display:flex;gap:8px;margin-bottom:14px}.top input{flex:1}
+input,select,textarea,button{font:inherit;color:inherit;background:var(--c);border:1px solid var(--b);border-radius:8px;padding:7px 10px}
+button{cursor:pointer}button:hover{border-color:var(--a)}button.p{background:var(--a);color:#fff;border-color:var(--a)}
+h1{font-size:22px;margin:4px 0 14px;font-weight:600}h2{font-size:13px;margin:0 0 8px;color:var(--m);text-transform:uppercase;letter-spacing:.05em}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}section,.card{background:var(--c);border:1px solid var(--b);border-radius:12px;padding:14px;margin-bottom:14px}
+.row{display:flex;gap:8px;align-items:center;border-left:4px solid;padding:6px 8px;margin:6px 0;border-radius:4px}.mid{min-width:0;flex:1}
+.meta,.m{font-size:12px;color:var(--m)}.tag{font-weight:600;margin-right:6px}.dn{text-decoration:line-through;opacity:.6}.bad{color:var(--bad);font-weight:600}
+.acts{display:flex;gap:4px;flex:none;opacity:.45}.row:hover .acts,.acts:focus-within{opacity:1}.acts button{padding:3px 7px;font-size:12px}@media(hover:none){.acts{opacity:1}}
+.chk{width:22px;height:22px;border-radius:50%;border:2px solid var(--k);padding:0;flex:none;background:transparent}.chk:hover{background:var(--k)}.ic{width:22px;text-align:center;flex:none}
+.bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}.cal>div{background:var(--c);border:1px solid var(--b);min-height:84px;padding:3px;font-size:11px;overflow:hidden;cursor:pointer}
+.cal .h{min-height:0;text-align:center;color:var(--m);cursor:default}.cal .o{opacity:.45}.cal .td{border-color:var(--a)}
+.chip{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-left:3px solid;padding-left:3px;margin-top:2px}
+#m{position:fixed;inset:0;background:#0006;display:none;align-items:center;justify-content:center;z-index:9;padding:10px}
+#m form,#m .box{background:var(--c);border-radius:14px;padding:18px;width:100%;max-width:460px;max-height:92vh;overflow:auto;display:grid;gap:8px}
+label{font-size:12px;color:var(--m);display:grid;gap:3px}.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;max-height:110px;overflow:auto;margin-top:4px}.chip2{display:flex;flex-direction:row;align-items:center;gap:5px;border:1px solid var(--b);border-radius:999px;padding:3px 10px;font-size:13px;color:var(--t);cursor:pointer}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--t);color:var(--bg);padding:10px 16px;border-radius:10px;z-index:20}
+.fab{display:none}@media(max-width:800px){body{display:block}nav{width:auto;height:auto;position:static;display:flex;flex-wrap:wrap;gap:2px;padding:8px}nav h4,.hint{display:none}main{padding:12px}.cal>div{min-height:56px}.fab{display:block;position:fixed;right:16px;bottom:16px;width:54px;height:54px;border-radius:50%;font-size:26px;padding:0;z-index:5}}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:8px}.qa{display:flex;gap:6px;flex-wrap:wrap;background:var(--c);padding:10px;border-radius:12px;border:1px solid var(--b);margin-bottom:10px}.qa input{flex:1;min-width:150px}
+</style>
+<body><nav id="nav"></nav><main><div class="top"><input id="q" placeholder="Search…" oninput="F.q=this.value;view!='all'?go('all',1):render()"><button class="p" onclick="addMenu()">+ Add</button></div><div id="v"></div></main><button class="p fab" onclick="addMenu()">+</button><div id="m"></div>
+<script>
+const $=s=>document.querySelector(s),p2=n=>String(n).padStart(2,'0');
+const T={task:{n:'Task',s:['Not Started','In Progress','Completed']},event:{n:'Event'},deadline:{n:'Deadline',s:['Not Started','In Progress','Completed']},reminder:{n:'Reminder',s:['Active','Completed']}};
+const AREAS=['College','Family','Friends'];
+const TY={tasks:'task',events:'event',deadlines:'deadline',reminders:'reminder'};
+const NAV=[['dash','Today'],['calendar','Calendar'],['upcoming','Upcoming'],['all','Everything'],['people','People']];
+let D;try{D=JSON.parse(localStorage.lifeos)}catch(e){}D=D&&D.items?D:{items:[],people:[]};D.people=D.people||[];
+const toast=m=>{const e=document.createElement('div');e.className='toast';e.textContent=m;document.body.appendChild(e);setTimeout(()=>e.remove(),4500)};
+const save=()=>{try{localStorage.lifeos=JSON.stringify(D)}catch(e){toast('Could not save to browser storage.')}};
+const uid=()=>Math.random().toString(36).slice(2,9);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const ymd=d=>d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate()),dt=s=>new Date(s+'T00:00'),today=()=>ymd(new Date());
+const addDays=(s,n)=>{const d=dt(s);d.setDate(d.getDate()+n);return ymd(d)},dayN=(a,b)=>Math.round((dt(b)-dt(a))/864e5),diff=d=>dayN(today(),d);
+const fmtD=d=>dt(d).toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short'});
+const isDone=i=>i.status=='Completed',od=i=>i.type!='event'&&!isDone(i)&&i.date&&i.date<today(),monday=s=>addDays(s,-((dt(s).getDay()+6)%7));
+const srt=(a,b)=>{const x=a.i||a,y=b.i||b;return((a.d||x.date||'9')+(x.time||''))<((b.d||y.date||'9')+(y.time||''))?-1:1};
+function isOn(i,d){if(!i.date)return false;if(i.date==d)return true;const r=i.rec;if(i.type!='event'||!r||r=='never'||d<i.date)return false;const k=dayN(i.date,d);
+return r=='daily'||(r=='weekly'&&k%7==0)||(r=='monthly'&&d.slice(8)==i.date.slice(8))||(r=='yearly'&&d.slice(5)==i.date.slice(5))||(r=='custom'&&k%(+i.rn||1)==0)}
+const itemsOn=d=>D.items.filter(i=>isOn(i,d)).sort(srt),overdue=()=>D.items.filter(od).sort(srt);
+function nextD(i){let d=i.date,n=0;do{const x=dt(d);if(i.rec=='daily')x.setDate(x.getDate()+1);else if(i.rec=='weekly')x.setDate(x.getDate()+7);else if(i.rec=='monthly')x.setMonth(x.getMonth()+1);else if(i.rec=='yearly')x.setFullYear(x.getFullYear()+1);else x.setDate(x.getDate()+(+i.rn||1));d=ymd(x)}while(d<=today()&&++n<800);return d}
+const who=i=>{const n=(i.people||[]).map(id=>(D.people.find(p=>p.id==id)||{}).name).filter(Boolean);return n.length?' · 👤 '+esc(n.join(', ')):''};
+function cd(i,d){if(!d||i.type=='event'||isDone(i))return'';const k=diff(d);return k<0?` · <span class=bad>Overdue ${-k} day${k<-1?'s':''}</span>`:' · '+(i.type=='deadline'?'Due ':'')+(k==0?'today':k==1?'tomorrow':'in '+k+' days')}
+function row(i,d){d=d||i.date;return `<div class=row style="border-color:var(--${i.type});background:color-mix(in srgb,var(--${i.type}) 9%,var(--c))">${i.type!='event'&&!isDone(i)?`<button class=chk style="--k:var(--${i.type})" title="Complete" onclick="done('${i.id}')"></button>`:`<span class=ic>${isDone(i)?'✓':'📅'}</span>`}<div class=mid><b class="${isDone(i)?'dn':''}">${esc(i.title)}</b><div class=meta><span class=tag style="color:var(--${i.type})">${T[i.type].n}</span>${i.area?'<span style="color:var(--ar-'+i.area+')">● '+i.area+'</span> · ':''}${d?fmtD(d)+(i.time?' '+i.time+(i.end?'–'+i.end:''):''):'No date'}${i.loc?' · 📍'+esc(i.loc):''}${cd(i,d)}${who(i)}${i.pri&&(i.type=='task'||i.type=='deadline')?' · '+(i.pri=='High'?'<b class=bad>High</b>':i.pri):''}${i.status?' · '+i.status:''}${i.rec&&i.rec!='never'?' · ↻'+i.rec:''}</div></div><div class=acts><button title="Push 1 day" onclick="push('${i.id}')">+1d</button><button onclick="edit('${i.id}')">Edit</button><button onclick="del('${i.id}')">✕</button></div></div>`}
+const list=es=>es.length?es.map(e=>row(e.i||e,e.d)).join(''):'<p class=m>Nothing here.</p>';
+const upc=(a,b)=>{const t=today(),r=[];for(let k=a;k<=b;k++)itemsOn(addDays(t,k)).filter(i=>!isDone(i)).forEach(i=>r.push({i,d:addDays(t,k)}));return r};
+const done=id=>{const i=D.items.find(x=>x.id==id);if(i.rec&&i.rec!='never'&&i.date)i.date=nextD(i);else i.status='Completed';save();render()};
+const push=id=>{const i=D.items.find(x=>x.id==id);i.date=addDays(i.date||today(),1);save();render()};
+const del=id=>{const i=D.items.find(x=>x.id==id);ask(`Delete "${i.title}"? This cannot be undone.`,()=>{D.items=D.items.filter(x=>x.id!=id);save();render()})};
+let view='dash',F={q:'',area:'',type:'',status:'',pri:'',date:'',show:false},cal={mode:'month',date:today()};
+function go(v,keep){view=v;if(!keep){F={q:'',area:'',type:'',status:'',pri:'',date:'',show:false};$('#q').value=''}if(TY[v])F.type=TY[v];render()}
+const goArea=a=>{go('all');F.area=a;render()};
+const V={};
+V.dash=()=>{const t=today(),on=itemsOn(t).filter(i=>!isDone(i)),ov=overdue();
+return `<h1>${new Date().toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</h1>
+<form class=qa onsubmit="qa(event)"><select id=qt>${['task','event','deadline','reminder'].map(k=>`<option value=${k}>${T[k].n}</option>`).join('')}</select><input id=qti placeholder="Quick add — type and press Enter" autocomplete=off><select id=qd><option value=0>Today</option><option value=1>Tomorrow</option><option value=n>No date</option></select><select id=qar>${AREAS.map(a=>`<option>${a}</option>`).join('')}</select><button class=p>Add</button></form>
+<p class=m>${on.length} for today${ov.length?` · <span class=bad>${ov.length} overdue</span>`:''} — college, family and friends in one view.</p>
+<div class=grid>${AREAS.map(a=>`<section style="border-top:4px solid var(--ar-${a})"><h2>${a}</h2>${list([...ov.filter(i=>i.area==a),...on.filter(i=>i.area==a)])}</section>`).join('')}</div>
+<section><h2>Coming up (next 7 days)</h2>${list(upc(1,7))}</section>`};
+function browse(){const t=today(),m=i=>{const q=F.q.toLowerCase();return(!q||(i.title+' '+(i.notes||'')+' '+(i.loc||'')+who(i)).toLowerCase().includes(q))&&(!F.area||i.area==F.area)&&(!F.type||i.type==F.type)&&(!F.status||i.status==F.status)&&(!F.pri||i.pri==F.pri)&&(F.show||F.status||F.q||!isDone(i))&&(!F.date||(F.date=='none'?!i.date:F.date=='overdue'?od(i):F.date=='today'?isOn(i,t):[0,1,2,3,4,5,6].some(k=>isOn(i,addDays(t,k)))))};
+const s=(k,l,o)=>`<select onchange="F.${k}=this.value;render()"><option value="">${l}</option>${o.map(x=>Array.isArray(x)?`<option value="${x[0]}" ${F[k]==x[0]?'selected':''}>${x[1]}</option>`:`<option ${F[k]==x?'selected':''}>${x}</option>`).join('')}</select>`;
+const nm=NAV.find(n=>n[0]==view);
+return `<h1>${view=='all'?'Everything'+(F.area?' · '+F.area:''):nm[1]}</h1><div class=bar>${s('area','Any area',AREAS)}${view=='all'?s('type','Any type',Object.keys(T).map(k=>[k,T[k].n])):''}${s('status','Any status',['Not Started','In Progress','Active','Completed'])}${s('pri','Any priority',['High','Medium','Low'])}${s('date','Any date',[['today','Today'],['week','Next 7 days'],['overdue','Overdue'],['none','No date']])}<label style="display:flex;flex-direction:row;align-items:center;gap:4px"><input type=checkbox ${F.show?'checked':''} onchange="F.show=this.checked;render()"> Show completed</label><button onclick="go('${view}')">Clear</button></div>${list(D.items.filter(m).sort(srt))}`}
+['all','tasks','events','deadlines','reminders'].forEach(k=>V[k]=browse);
+V.upcoming=()=>{const t=today(),all=[...overdue().map(i=>({i,d:i.date})),...upc(0,60),...D.items.filter(i=>i.type!='event'&&!isDone(i)&&i.date>addDays(t,60)).map(i=>({i,d:i.date}))].sort(srt),we=6-((new Date().getDay()+6)%7);
+const B={Overdue:[],Today:[],Tomorrow:[],'This week':[],'Next week':[],Later:[]};all.forEach(x=>{const k=diff(x.d);B[k<0?'Overdue':k==0?'Today':k==1?'Tomorrow':k<=we?'This week':k<=we+7?'Next week':'Later'].push(x)});
+return '<h1>Upcoming</h1>'+Object.entries(B).map(([k,v])=>`<section><h2>${k} (${v.length})</h2>${list(v)}</section>`).join('')};
+V.overdue=()=>`<h1>Overdue</h1><p class=m>Incomplete items past their due date.</p>${list(overdue())}`;
+V.people=()=>`<h1>People</h1><p><button class=p onclick="pform()">+ Person</button></p>${D.people.map(p=>`<section><b>${esc(p.name)}</b> <span class=m>${esc(p.cat||'')}${p.bday?' · 🎂 '+p.bday:''}</span> <span class=acts style="float:right"><button onclick="pform('${p.id}')">Edit</button><button onclick="delP('${p.id}')">✕</button></span>${p.notes?`<p class=m>${esc(p.notes)}</p>`:''}${list(D.items.filter(i=>(i.people||[]).includes(p.id)).sort(srt))}</section>`).join('')||'<p class=m>No people yet.</p>'}`;
+V.calendar=()=>{const c=cal,d=dt(c.date),t=today();window.calNav=n=>{const x=dt(c.date);c.mode=='month'?x.setMonth(x.getMonth()+n):x.setDate(x.getDate()+n*(c.mode=='week'?7:1));c.date=ymd(x);render()};
+let h=`<h1>Calendar</h1><div class=bar><button onclick="calNav(-1)">‹</button><button onclick="calNav(1)">›</button><button onclick="cal.date=today();render()">Today</button>${['month','week','day'].map(m=>`<button class="${c.mode==m?'p':''}" onclick="cal.mode='${m}';render()">${m}</button>`).join('')}<button onclick="addMenu()">+ Add on ${fmtD(c.date)}</button></div><h2>${d.toLocaleDateString(undefined,{month:'long',year:'numeric',...(c.mode=='day'?{day:'numeric'}:{})})}</h2>`;
+const chips=x=>{const l=itemsOn(x).filter(i=>!isDone(i));return l.slice(0,3).map(i=>`<span class=chip style="border-color:var(--${i.type})">${esc(i.title)}</span>`).join('')+(l.length>3?`<span class=m>+${l.length-3}</span>`:'')};
+if(c.mode=='month'){const f=monday(ymd(new Date(d.getFullYear(),d.getMonth(),1)));h+='<div class=cal>'+['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(x=>`<div class=h>${x}</div>`).join('');for(let k=0;k<42;k++){const x=addDays(f,k);h+=`<div class="${dt(x).getMonth()!=d.getMonth()?'o':''} ${x==t?'td':''}" onclick="cal.date='${x}';cal.mode='day';render()"><b>${+x.slice(8)}</b>${chips(x)}</div>`}h+='</div>'}
+else if(c.mode=='week'){const f=monday(c.date);for(let k=0;k<7;k++){const x=addDays(f,k);h+=`<section><h2 onclick="cal.date='${x}';cal.mode='day';render()" style="cursor:pointer">${fmtD(x)}</h2>${list(itemsOn(x).map(i=>({i,d:x})))}</section>`}}
+else h+=`<section>${list(itemsOn(c.date).map(i=>({i,d:c.date})))}</section>`;return h};
+function render(){$('#nav').innerHTML='<span class=logo>LifeOS</span>'+NAV.map(([k,l])=>`<a class="${view==k?'on':''}" onclick="go('${k}')">${l}</a>`).join('')+'<h4>Areas</h4>'+AREAS.map(a=>`<a onclick="goArea('${a}')"><i class=dot style="background:var(--ar-${a})"></i>${a}</a>`).join('')+`<h4>Data</h4><a onclick="exp()">Export data</a><a onclick="$('#imp').click()">Import data</a><a onclick="notif()">Enable alerts</a><div class=hint>Keys: <b>n</b> add · <b>/</b> search</div><input id=imp type=file accept=".json" hidden onchange="imp(this)">`;$('#v').innerHTML=V[view]()}
+const modal=h=>{$('#m').innerHTML=h;$('#m').style.display='flex';setTimeout(()=>{const f=$('#m input:not([type=hidden]),#m textarea');f&&f.focus()},0)},closeM=()=>$('#m').style.display='none';
+function ask(msg,yes,label){modal(`<div class=box><b>${esc(msg)}</b><div class=two><button onclick="closeM()">Cancel</button><button class=p id=yes>${label||'Delete'}</button></div></div>`);$('#yes').onclick=()=>{closeM();yes()}}
+const addMenu=()=>{modal(`<div class="box menu"><b>Add</b>${Object.keys(T).map(k=>`<button onclick="itemForm('${k}')">${T[k].n}</button>`).join('')}<button onclick="pform()">Person</button><button onclick="closeM()">Cancel</button></div>`);document.querySelectorAll('#m .box.menu button').forEach((b,i,a)=>{if(i<a.length-1)b.textContent=(i+1)+' · '+b.textContent})};
+const edit=id=>itemForm(null,id);
+function itemForm(type,id){const i=id?D.items.find(x=>x.id==id):{type,date:view=='calendar'?cal.date:today(),status:(T[type].s||[])[0],pri:'Medium',rec:'never',people:[],area:F.area||'College'};type=i.type;
+const o=(a,v)=>a.map(x=>`<option ${x==v?'selected':''}>${x}</option>`).join(''),pp=D.people.map(p=>`<label class=chip2><input type=checkbox value="${p.id}" ${(i.people||[]).includes(p.id)?'checked':''}> ${esc(p.name)}</label>`).join('');
+modal(`<form onsubmit="saveI(event,'${id||''}','${type}')"><b>${id?'Edit':'New'} ${T[type].n}</b><label>Title<input id=ti required value="${esc(i.title)}"></label>
+<div class=two><label>Date<input type=date id=dt value="${i.date||''}"></label><label>${type=='event'?'Start':'Time'}<input type=time id=tm value="${i.time||''}"></label></div>
+<label>Area<select id=ar>${o(AREAS,i.area)}</select></label>
+${type=='event'?`<div class=two><label>End<input type=time id=en value="${i.end||''}"></label><label>Location<input id=lo value="${esc(i.loc)}"></label></div>`:''}
+${T[type].s?`<div class=two><label>Status<select id=st>${o(T[type].s,i.status)}</select></label>${type!='reminder'?`<label>Priority<select id=pr>${o(['High','Medium','Low'],i.pri)}</select></label>`:''}</div>`:''}
+${pp?`<div><span class=m>People (optional) — tick to link</span><div id=pe class=chips>${pp}</div></div>`:''}
+${type!='deadline'?`<div class=two><label>Repeats<select id=re>${o(['never','daily','weekly','monthly','yearly','custom'],i.rec)}</select></label><label>Custom: every N days<input type=number id=rn min=1 value="${i.rn||''}"></label></div>`:''}
+<label>Notes<textarea id=no rows=3>${esc(i.notes)}</textarea></label><div class=two><button type=button onclick="closeM()">Cancel</button><button class=p>Save</button></div></form>`)}
+function saveI(e,id,type){e.preventDefault();const g=k=>$('#'+k)?$('#'+k).value:undefined,ms=k=>$('#'+k)?[...$('#'+k).querySelectorAll('input:checked')].map(o=>o.value):[];
+const i=id?D.items.find(x=>x.id==id):{id:uid(),type};Object.assign(i,{title:g('ti').trim(),date:g('dt'),time:g('tm'),end:g('en'),loc:g('lo'),area:g('ar'),status:g('st')||i.status,pri:g('pr')||i.pri,rec:g('re')||'never',rn:g('rn'),notes:g('no'),people:ms('pe')});
+if(!id)D.items.push(i);save();closeM();render()}
+function pform(id){const p=id?D.people.find(x=>x.id==id):{};modal(`<form onsubmit="saveP(event,'${id||''}')"><b>${id?'Edit':'New'} person</b><label>Name<input id=pn required value="${esc(p.name)}"></label><label>Relationship / category<input id=pc value="${esc(p.cat)}"></label><label>Birthday<input type=date id=pb value="${p.bday||''}"></label><label>Notes<textarea id=pt rows=3>${esc(p.notes)}</textarea></label><div class=two><button type=button onclick="closeM()">Cancel</button><button class=p>Save</button></div></form>`)}
+function saveP(e,id){e.preventDefault();const p=id?D.people.find(x=>x.id==id):{id:uid()};Object.assign(p,{name:$('#pn').value.trim(),cat:$('#pc').value,bday:$('#pb').value,notes:$('#pt').value});if(!id)D.people.push(p);save();closeM();render()}
+function delP(id){ask('Delete this person? Their items stay, but are unlinked from them.',()=>{D.people=D.people.filter(p=>p.id!=id);D.items.forEach(i=>i.people=(i.people||[]).filter(x=>x!=id));save();render()})}
+function qa(e){e.preventDefault();const ty=$('#qt').value,ti=$('#qti').value.trim();if(!ti)return;const dd=$('#qd').value,d=dd=='1'?addDays(today(),1):dd=='n'&&ty!='event'&&ty!='deadline'?'':today();D.items.push({id:uid(),type:ty,title:ti,date:d,time:'',area:$('#qar').value,status:(T[ty].s||[])[0],pri:'Medium',rec:'never',people:[]});save();render();$('#qti').focus()}
+function exp(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(D,null,1)],{type:'application/json'}));a.download='lifeos-backup-'+today()+'.json';a.click()}
+function imp(el){const f=el.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const x=JSON.parse(r.result);if(!Array.isArray(x.items))throw 0;ask(`Replace ALL current data with this backup (${x.items.length} items)? Export first if unsure.`,()=>{D={items:x.items,people:x.people||[]};save();render()},'Replace')}catch(e){toast('That file is not a valid backup.')}el.value=''};r.readAsText(f)}
+function notif(){if(!('Notification' in window))return toast('Notifications are not supported in this browser.');Notification.requestPermission().then(r=>toast(r=='granted'?'Alerts on while this tab is open.':'Alerts not enabled.')).catch(()=>toast('Notifications are blocked here.'))}
+setInterval(()=>{if(!('Notification' in window)||Notification.permission!='granted')return;const n=new Date(),hm=p2(n.getHours())+':'+p2(n.getMinutes()),t=today();let fired={};try{fired=JSON.parse(localStorage.lifeosN||'{}')}catch(e){}
+itemsOn(t).forEach(i=>{const k=i.id+t;if(i.time&&i.time<=hm&&!isDone(i)&&!fired[k]){fired[k]=1;new Notification(T[i.type].n+': '+i.title,{body:i.time})}});try{localStorage.lifeosN=JSON.stringify(fired)}catch(e){}},30000);
+document.addEventListener('keydown',e=>{if(e.ctrlKey||e.metaKey||e.altKey)return;const typing=/INPUT|TEXTAREA|SELECT/.test(e.target.tagName),open=$('#m').style.display=='flex';
+if(e.key=='Escape'){if(open)closeM();return}if(typing)return;
+if(open){const bs=[...document.querySelectorAll('#m .box.menu button')],b=bs[+e.key-1];if(/^[1-9]$/.test(e.key)&&b)b.click();return}
+if(e.key=='n'){e.preventDefault();addMenu()}else if(e.key=='/'){e.preventDefault();$('#q').focus()}});
+$('#m').onclick=e=>{if(e.target.id=='m')closeM()};render();
+</script></html>
